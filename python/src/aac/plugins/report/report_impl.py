@@ -4,15 +4,17 @@
 
 from aac.plugins.plugin_execution import PluginExecutionResult, plugin_result
 from aac.validate import validated_source
+from aac.lang.active_context_lifecycle_manager import get_active_context
 from aac.lang.definition_helpers import get_definitions_by_root_key
 from aac.lang.definitions.definition import Definition
 from aac.lang.definition_helpers import get_definitions_by_source_uri
-from aac.lang.references import get_reference_target_value
+from aac.lang.references import get_reference_target_value_from_structure
+from aac.lang.language_context import is_definition_type, is_primitive_type
 
 import yaml
 import csv
 import io
-from typing import Optional
+from typing import Optional, List, Dict
 
 plugin_name = "report"
 
@@ -110,10 +112,10 @@ def _generate_report(report_file: str, architecture_file: str) -> dict:
 
             # get data content
             content = []
-            for arch_definition in arch_result.definitions:
+            for arch_structure in _get_structures_and_replace_references(arch_result.definitions):
                 data_result = {}
                 for data_item in report_fields["data"]:
-                    data_item_value = get_reference_target_value(data_item["source"], arch_definition)
+                    data_item_value = get_reference_target_value_from_structure(data_item["source"], arch_structure)
                     if len(data_item_value) == 0:
                         data_result[data_item["name"]] = ""
                     elif len(data_item_value) == 1:
@@ -128,3 +130,42 @@ def _generate_report(report_file: str, architecture_file: str) -> dict:
             report_results.append(report_result)
 
     return report_results
+
+
+def _get_structures_and_replace_references(definitions: List[Definition]) -> List[Dict]:
+    ret_val = []
+
+    for definition in definitions:
+        pass
+
+    return ret_val
+
+
+def _replace_references(structure_type: str, structure: dict) -> None:
+    # TODO This relies on pass by reference and side effects persisting...need to confirm through test
+
+    fields = get_active_context().get_definition_by_name(structure_type).get_top_level_fields()["fields"]
+    print(f"top level fields for {structure_type} = {fields}")
+
+    # loop through fields looking for complex types or reference primitives
+    for field in fields:
+        if is_primitive_type(field["type"]) and field["type"] == "reference":
+            print("Found a reference")
+        elif is_definition_type(field["type"]):
+            type_name = field["type"]
+            print(f"Found definition type {type_name}")
+
+
+def _get_field_type(type_name: str, field_name: str) -> str:
+    type_definition = get_active_context().get_definition_by_name(type_name)
+
+    # ensure the type definition we got back is a schema
+    if type_definition.get_root_key() != "schema":
+        print(f"ERROR:  searched for type {type_name} and got a definition who's root wasn't schema")
+        return None
+
+    for schema_field in type_definition.structure["schema"]["fields"]:
+        if schema_field["name"] == field_name:
+            return schema_field["type"]
+    # nothing found so return None
+    return None

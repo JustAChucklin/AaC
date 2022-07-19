@@ -52,7 +52,7 @@ schema:
   name: PartRef
   description:  Reference to a part with quantity
   fields:
-    - name: part-ref
+    - name: part
       type: reference
       description: Reference fo the name in a Part item.
     - name: quantity
@@ -61,7 +61,7 @@ schema:
   validation:
     - name: Required fields are present
       arguments:
-        - part-ref
+        - part
         - quantity
     - name: Reference target valid
       arguments:
@@ -93,7 +93,7 @@ schema:
   name: AssemblyRef
   description:  Reference to an assembly with quantity
   fields:
-    - name: assembly-ref
+    - name: assembly
       type: reference
       description: Reference fo the name in another Assembly item.
     - name: quantity
@@ -102,15 +102,15 @@ schema:
   validation:
     - name: Required fields are present
       arguments:
-        - assembly-ref
+        - assembly
         - quantity
     - name: Reference target valid
       arguments:
-        - assembly-ref
+        - assembly
 ---
 schema:
-  name: Deployment
-  description: A collection of parts and assemblies to be deployed to one or more locations.
+  name: Distribution
+  description: A collection of parts and assemblies to be distributed to one or more locations.
   fields:
     - name: name
       type: string
@@ -120,16 +120,16 @@ schema:
       description:  A description of the assembly.
     - name: location
       type: string
-      description: The location for the deployment.
+      description: The location for the distribution.
     - name: parts
       type: PartRef[]
-      description:  A list of parts that contribute to the deployment.
+      description:  A list of parts that contribute to the distribution.
     - name: assemblies
       type: AssemblyRef[]
-      description: A list of assemblies that contribute to the deployment.
-    - name: sub-deployments
-      type: DeploymentRef[]
-      description: A list of deployments that contribute to the deployment.
+      description: A list of assemblies that contribute to the distribution.
+    - name: sub-distributions
+      type: DistributionRef[]
+      description: A list of deployments that contribute to the distribution.
     - name: need_date
       type: date
       descriptioN: Optional field to define a needed material receive date.
@@ -141,23 +141,23 @@ schema:
         - location
 ---
 schema:
-  name: DeploymentRef
-  description:  Reference to a deployment with quantity
+  name: DistributionRef
+  description:  Reference to a distribution with quantity
   fields:
-    - name: deployment-ref
+    - name: distribution
       type: reference
-      description: Reference to another Deployment item.
+      description: Reference to another Distribution item.
     - name: quantity
       type: int
-      description: The number of deployments to include.
+      description: The number of distributions to include.
   validation:
     - name: Required fields are present
       arguments:
-        - deployment-ref
+        - distribution
         - quantity
     - name: Reference target valid
       arguments:
-        - deployment-ref
+        - distribution
 ---
 ext:
    name: MaterialRootItems
@@ -168,5 +168,5 @@ ext:
           type: Part
         - name: assembly
           type: Assembly
-        - name: deployment
-          type: Deployment
+        - name: distribution
+          type: Distribution

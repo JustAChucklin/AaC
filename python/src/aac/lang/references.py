@@ -90,7 +90,12 @@ def get_reference_target_value_from_list(reference_field_value: str, definition_
 def get_reference_target_value(reference_field_value: str, definition: Definition) -> list[Any]:
     """Get value from the reference_field_value from a definition."""
 
-    return _get_ref_value_from_dict(reference_field_value.split('.'), definition.structure)
+    return get_reference_target_value_from_structure(reference_field_value, definition.structure)
+
+
+def get_reference_target_value_from_structure(reference_field_value: str, structure: dict) -> list[Any]:
+    """Get value from the reference_field_value from a definition structure."""
+    return _get_ref_value_from_dict(reference_field_value.split('.'), structure)
 
 
 def _get_ref_value_from_dict(segments: list[str], search_me: dict) -> list[Any]:
